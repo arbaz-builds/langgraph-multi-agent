@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage, AIMessage, ToolMessage
 from langchain_core.tools import tool as tool_decorator
 from langchain_core.embeddings import Embeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import TextLoader, PyPDFLoader, CSVLoader, Docx2txtLoader
 from langchain_community.retrievers import BM25Retriever
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -34,12 +35,10 @@ answer_LLM = ChatOpenAI(base_url=config.NVIDIA_BASE_URL, api_key=config.NVIDIA_A
 router_LLM = ChatOpenAI(base_url=config.NVIDIA_BASE_URL, api_key=config.NVIDIA_API_KEY, model=config.NVIDIA_MODEL, temperature=0)
 
 # ── Embeddings ────────────────────────────────────────────────────────────────
-class MockEmbeddings(Embeddings):
-    """Placeholder embeddings — swap with a real model for production RAG."""
-    def embed_documents(self, texts): return [[0.1] * 1024 for _ in texts]
-    def embed_query(self, text):      return [0.1] * 1024
-
-embeddings = MockEmbeddings()
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",
+    api_key=config.OPENAI_API_KEY
+)
 
 # ── State & Schema ────────────────────────────────────────────────────────────
 class RouterDecision(BaseModel):
