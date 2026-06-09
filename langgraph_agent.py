@@ -67,34 +67,90 @@ Rules:
 """
 
 # ── Document Loader ───────────────────────────────────────────────────────────
-_retriever_store: dict = {"bm25": None}   # dict instead of bare global — thread-safe
+
+_retriever_store: Dict = {"bm25": None}
 
 def load_document(file_path: str) -> str:
     """Load and index a document (PDF/CSV/TXT/DOCX) into Pinecone + BM25."""
-    loaders = {".pdf": PyPDFLoader, ".csv": CSVLoader, ".docx": Docx2txtLoader}
-    ext = os.path.splitext(file_path)[1].lower()
-    if not os.path.exists(file_path):
-        return "Error: File not found."
-    loader = TextLoader(file_path, encoding="utf-8") if ext == ".txt" else loaders.get(ext)
-    if loader is None:
-        return "Error: Unsupported format. Supported: .pdf .csv .txt .docx"
-    if ext != ".txt":
-        loader = loader(file_path)
-    docs = loader.load()
-    if not docs:
-        return "Warning: File is empty."
-    chunks = RecursiveCharacterTextSplitter(
-        chunk_size=config.CHUNK_SIZE, chunk_overlap=config.CHUNK_OVERLAP
-    ).split_documents(docs)
-    retriever   = BM25Retriever.from_documents(chunks)
-    retriever.k = 2
-    _retriever_store["bm25"] = retriever
-    PineconeVectorStore.from_documents(
-        chunks, embedding=embeddings,
-        index_name=config.PINECONE_INDEX,
-        pinecone_api_key=config.PINECONE_API_KEY
-    )
-    return f"Document indexed. {len(chunks)} chunks stored."
+    try:
+        # Security: Basic path validation
+        if not os.path.exists(file_path):
+            return "Error: File not found."
+        
+        if not os.path.isfile(file_path):
+            return "Error: Path is not a file."
+        
+        # File size limit (e.g., 50MB)
+        max_size_mb = 50
+        if os.path.getsize(file_path) > max_size_mb * 1024 * 1024:
+            return f"Error: File too large. Maximum allowed size is {max_size_mb}MB."
+
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        # Loader mapping
+        loader_map = {
+            ".pdf": PyPDFLoader,
+            ".csv": CSVLoader,
+            ".docx": Docx2txtLoader,
+            ".txt": TextLoader,
+        }
+        
+        if ext not in loader_map:
+            return "Error: Unsupported format. Supported: .pdf, .csv, .txt, .docx"
+        
+        # Load document
+        loader_class = loader_map[ext]
+        if ext == ".txt":
+            loader = loader_class(file_path, encoding="utf-8")
+        else:
+            loader = loader_class(file_path)
+        
+        docs = loader.load()
+        
+        if not docs:
+            return "Warning: File is empty or could not be read."
+        
+        # Add metadata to each chunk (very important)
+        for doc in docs:
+            doc.metadata.update({
+                "source": os.path.basename(file_path),
+                "file_path": file_path,
+                "file_type": ext,
+                "upload_time": "now"  # You can use datetime here
+            })
+        
+        # Split into chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=config.CHUNK_SIZE,
+            chunk_overlap=config.CHUNK_OVERLAP,
+            separators=["\n\n", "\n", " ", ""]
+        )
+        chunks = text_splitter.split_documents(docs)
+        
+        if not chunks:
+            return "Warning: No chunks created from document."
+        
+        # BM25 Retriever
+        bm25_retriever = BM25Retriever.from_documents(chunks)
+        bm25_retriever.k = 3  # Increased a bit
+        _retriever_store["bm25"] = bm25_retriever
+        
+        # Pinecone Vector Store
+        PineconeVectorStore.from_documents(
+            chunks,
+            embedding=embeddings,
+            index_name=config.PINECONE_INDEX,
+            pinecone_api_key=config.PINECONE_API_KEY
+        )
+        
+        return f"✅ Document '{os.path.basename(file_path)}' indexed successfully. {len(chunks)} chunks stored."
+        
+    except Exception as e:
+        # Better error handling (don't expose full traceback in production)
+        error_msg = str(e)
+        if "No module" in error_msg:
+            return f"Error: Missing dependency - {error_msg}"
+        return f"Error while processing document: {error_msg}"
 
 # ── RAG Tool ──────────────────────────────────────────────────────────────────
 @tool_decorator
