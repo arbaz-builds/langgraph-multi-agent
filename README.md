@@ -89,7 +89,7 @@ langgraph-multi-agent/
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/Pokemon455/langgraph-multi-agent.git
+git clone https://github.com/arbaz-builds/langgraph-multi-agent.git
 cd langgraph-multi-agent
 pip install -r requirements.txt
 ```
@@ -122,7 +122,7 @@ print(result)
 | `PINECONE_API_KEY` | ✅ | Vector database | [pinecone.io](https://pinecone.io) |
 | `TAVILY_API_KEY` | ✅ | Web search | [tavily.com](https://tavily.com) |
 | `DATABASE_URL` | ✅ | PostgreSQL memory | [neon.tech](https://neon.tech) |
-| `MCP_SERVER_URL` | ✅ | FastMCP Python REPL | [fastmcp-python-repl-server](https://github.com/Pokemon455/fastmcp-python-repl-server) |
+| `MCP_SERVER_URL` | ✅ | FastMCP Python REPL | [fastmcp-python-repl-server](https://github.com/arbaz-builds/fastmcp-python-repl-server) |
 | `LANGCHAIN_API_KEY` | ⚙️ optional | LangSmith tracing | [smith.langchain.com](https://smith.langchain.com) |
 
 ---
@@ -157,7 +157,7 @@ print(result)
 
 ## 🔗 Related Projects
 
-- [fastmcp-python-repl-server](https://github.com/Pokemon455/fastmcp-python-repl-server) — MCP Python REPL server used by this agent
+- [fastmcp-python-repl-server](https://github.com/arbaz-builds/fastmcp-python-repl-server) — MCP Python REPL server used by this agent
 - [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph) — Graph framework powering this project
 - [langchain-mcp-adapters](https://github.com/langchain-ai/langchain-mcp-adapters) — MCP integration for LangChain
 
@@ -172,4 +172,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
-MIT © [Arbaz](https://github.com/Pokemon455)
+MIT © [Arbaz](https://github.com/arbaz-builds)
