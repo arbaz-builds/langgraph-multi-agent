@@ -1,6 +1,6 @@
 """Graph assembly."""
 import asyncio
-from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages import AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 from state import State
@@ -10,9 +10,10 @@ import config
 
 
 async def build_graph():
-    tools    = [RAG, search_web, *await asyncio.wait_for(mcp_client.get_tools(), timeout=30)]
-    g        = StateGraph(State)
+    mcp_tools = await asyncio.wait_for(mcp_client.get_tools(), timeout=30)
+    tools     = [RAG, search_web, *mcp_tools]
 
+    g = StateGraph(State)
     g.add_node("router",   router_node)
     g.add_node("llm_tool", lambda s: llm_tool_node(s, tools))
     g.add_node("tools",    ToolNode(tools))
