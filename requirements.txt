@@ -35,3 +35,7 @@ requests>=2.31.0
 nest-asyncio>=1.6.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
+
+# Web Server
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
