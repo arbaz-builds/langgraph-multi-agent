@@ -6,8 +6,7 @@ from nodes.router import route_condition
 from nodes.llm_tool import get_tools, tool_or_answer, after_tools
 
 
-
-
+async def build_graph():
     g = StateGraph(State)
     g.add_node("router",   router_node)
     g.add_node("llm_tool", llm_tool_node)
