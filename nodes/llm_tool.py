@@ -16,7 +16,8 @@ async def get_tools() -> list:
         mcp_tools = await mcp_client.get_tools()
         _tools_cache = [RAG, search_web, *mcp_tools]
     return _tools_cache
-multi_tool=Tool_Node(_tools_cache)
+
+multi_tool=ToolNode(_tools_cache)
 
 
 async def llm_tool_node(state: State):
