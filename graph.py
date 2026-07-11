@@ -9,7 +9,8 @@ from nodes.conditions import tool_or_answer, after_tools
 
 
 
-
+aync def graph_bulid():
+   
     g = StateGraph(State)
     g.add_node("router",   router_node)
     g.add_node("llm_tool", llm_tool_node)
