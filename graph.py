@@ -1,19 +1,10 @@
 """Graph assembly."""
-from langchain_core.messages import AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 from state import State
 from nodes import router_node, llm_tool_node, answer_node
 from nodes.router import route_condition
-from nodes.llm_tool import get_tools
-import config
-
-
-def _tool_or_answer(s):
-    last = s["messages"][-1]
-    if isinstance(last, AIMessage) and last.tool_calls and s.get("iteration_count", 0) < config.MAX_ITERATIONS:
-        return "tools"
-    return "answer"
+from nodes.llm_tool import get_tools, tool_or_answer, after_tools
 
 
 async def build_graph():
@@ -27,8 +18,8 @@ async def build_graph():
 
     g.add_edge(START,    "router")
     g.add_conditional_edges("router",   route_condition, ["llm_tool", "answer"])
-    g.add_conditional_edges("llm_tool", _tool_or_answer, ["tools",    "answer"])
-    g.add_edge("tools",  "answer")
+    g.add_conditional_edges("llm_tool", tool_or_answer,  ["tools",    "answer"])
+    g.add_conditional_edges("tools",    after_tools,     ["llm_tool", "answer"])
     g.add_edge("answer", END)
 
     return g, tools
