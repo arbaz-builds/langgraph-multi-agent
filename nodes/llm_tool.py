@@ -5,15 +5,16 @@ from llms import answer_LLM
 from tools import RAG, search_web, mcp_client
 from langgraph.prebuilt import ToolNode
 
-_tools_cache = None
+_tools_cache = [RAG, search_web]
+multi_tools = ToolNode(_tools_cache)
 
 
 async def get_tools() -> list:
     """Fetch tools once and cache them (RAG + web search + MCP tools)."""
-    global _tools_cache
-    if _tools_cache is None:
-        mcp_tools = await mcp_client.get_tools()
-        _tools_cache = [RAG, search_web, *mcp_tools]
+    global _tools_cache, multi_tools
+    mcp_tools = await mcp_client.get_tools()
+    _tools_cache = [RAG, search_web, *mcp_tools]
+    multi_tools = ToolNode(_tools_cache)
     return _tools_cache
 
 
@@ -27,10 +28,3 @@ async def llm_tool_node(state: State):
         state["messages"][-6:]
     )
     return {"messages": [resp], "iteration_count": state.get("iteration_count", 0) + 1}
-
-
-async def get_multi_tools() -> ToolNode:
-    """Build the ToolNode from the cached tools list, for graph.py to use."""
-    await get_tools()
-    multi_tools = ToolNode(_tools_cache)
-    return multi_tools
