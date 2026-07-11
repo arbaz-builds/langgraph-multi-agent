@@ -32,6 +32,7 @@ MAX_ITERATIONS    = int(os.getenv("MAX_ITERATIONS", "3"))
 RETRIEVER_K       = int(os.getenv("RETRIEVER_K", "5"))
 RETRIEVER_FETCH_K = int(os.getenv("RETRIEVER_FETCH_K", "20"))
 
+
 # Validation
 def validate():
     missing = [k for k, v in {
