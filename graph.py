@@ -5,7 +5,7 @@ from langgraph.prebuilt import ToolNode
 from state import State
 from nodes import router_node, llm_tool_node, answer_node
 from nodes.router import route_condition
-from nodes.llm_tool import _get_tools
+from tools import RAG, search_web, mcp_client
 import config
 
 
@@ -17,7 +17,8 @@ def _tool_or_answer(s):
 
 
 async def build_graph():
-    tools = await _get_tools()
+    mcp_tools = await mcp_client.get_tools()
+    tools     = [RAG, search_web, *mcp_tools]
 
     g = StateGraph(State)
     g.add_node("router",   router_node)
