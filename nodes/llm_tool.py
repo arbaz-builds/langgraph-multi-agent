@@ -6,6 +6,7 @@ from tools import RAG, search_web, mcp_client
 from langgraph.prebuilt import ToolNode
 
 _tools_cache = None
+_tool_node_cache = None
 
 
 async def get_tools() -> list:
@@ -15,6 +16,16 @@ async def get_tools() -> list:
         mcp_tools = await mcp_client.get_tools()
         _tools_cache = [RAG, search_web, *mcp_tools]
     return _tools_cache
+
+
+async def get_tool_node() -> ToolNode:
+    """Build (and cache) the ToolNode used by graph.py, so graph.py never
+    has to construct it itself — keeps all tool wiring in one place."""
+    global _tool_node_cache
+    if _tool_node_cache is None:
+        tools = await get_tools()
+        _tool_node_cache = ToolNode(tools)
+    return _tool_node_cache
 
 
 async def llm_tool_node(state: State):
