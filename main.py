@@ -61,8 +61,11 @@ async def chat(payload: QueryRequest):
     return QueryResponse(response=result["messages"][-1].content)
 
 
-async def run(query: str, thread_id: str = "1") -> str:
-    """CLI helper — kept for local/manual testing."""
+async def build_and_run(query: str, thread_id: str = "1") -> str:
+    """CLI / test helper — kept for local/manual testing.
+    (Renamed from `run` to `build_and_run` so it matches what
+    tests/test_agent.py actually imports.)
+    """
     g, _ = await build_graph()
     async with AsyncPostgresSaver.from_conn_string(config.DATABASE_URL) as cp:
         await cp.setup()
@@ -73,4 +76,4 @@ async def run(query: str, thread_id: str = "1") -> str:
 
 
 if __name__ == "__main__":
-    print(asyncio.run(run("python version check karo")))
+    print(asyncio.run(build_and_run("python version check karo")))
