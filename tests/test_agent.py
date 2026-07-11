@@ -4,7 +4,7 @@ Run: python -m pytest tests/test_agent.py -v
 """
 import asyncio
 import pytest
-from langgraph_agent import build_and_run
+from main import build_and_run
 
 # ── Router Tests ─────────────────────────────────
 @pytest.mark.parametrize("query,expected_type", [
