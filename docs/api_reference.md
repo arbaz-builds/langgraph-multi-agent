@@ -8,14 +8,14 @@
 async def build_and_run(query: str, thread_id: str = "1") -> str:
     """
     Main entry point for the chatbot.
-    
+
     Args:
         query (str): User's input query
         thread_id (str): Conversation ID for memory (default: "1")
-    
+
     Returns:
         str: AI assistant's response
-    
+
     Example:
         result = await build_and_run("python version check karo", "user_123")
     """
@@ -34,7 +34,7 @@ def RAG(query: str) -> str:
 ### `web_search(query)`
 Searches Google for real-time information.
 ```python
-@tool  
+@tool
 def web_search(query: str) -> str:
     """Use for current news, prices, latest info."""
 ```
@@ -53,12 +53,12 @@ Executes Python code remotely.
 def load_document(file_path: str) -> str:
     """
     Loads and indexes a document into Pinecone.
-    
+
     Supported formats: .pdf, .csv, .txt, .docx
-    
+
     Args:
         file_path: Path to document
-    
+
     Returns:
         Success/error message
     """
