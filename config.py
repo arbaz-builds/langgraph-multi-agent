@@ -9,9 +9,6 @@ NVIDIA_API_KEY  = os.getenv("NVIDIA_API_KEY")
 NVIDIA_BASE_URL = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")
 NVIDIA_MODEL    = os.getenv("NVIDIA_MODEL", "openai/gpt-oss-20b")
 
-# Embeddings (OpenAI)
-OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")
-
 # Vector DB (Pinecone)
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX   = os.getenv("PINECONE_INDEX", "vector")
