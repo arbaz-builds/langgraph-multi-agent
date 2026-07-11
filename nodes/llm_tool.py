@@ -27,3 +27,10 @@ async def llm_tool_node(state: State):
         state["messages"][-6:]
     )
     return {"messages": [resp], "iteration_count": state.get("iteration_count", 0) + 1}
+
+
+async def get_multi_tools() -> ToolNode:
+    """Build the ToolNode from the cached tools list, for graph.py to use."""
+    await get_tools()
+    multi_tools = ToolNode(_tools_cache)
+    return multi_tools
