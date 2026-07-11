@@ -7,7 +7,7 @@ from tools import RAG, search_web, mcp_client
 _tools_cache = None
 
 
-async def _get_tools() -> list:
+async def get_tools() -> list:
     """Fetch tools once and cache them (RAG + web search + MCP tools)."""
     global _tools_cache
     if _tools_cache is None:
@@ -20,7 +20,7 @@ async def llm_tool_node(state: State):
     if isinstance(state["messages"][-1], ToolMessage):
         return {"messages": [], "iteration_count": state.get("iteration_count", 0)}
 
-    tools = await _get_tools()
+    tools = await get_tools()
     resp = await answer_LLM.bind_tools(tools).ainvoke(
         [SystemMessage(content="You are an AI assistant. Always call a tool. Never reply with text.")] +
         state["messages"][-6:]
