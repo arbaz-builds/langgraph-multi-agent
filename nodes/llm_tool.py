@@ -3,16 +3,13 @@ from langchain_core.messages import SystemMessage, ToolMessage
 from state import State
 from llms import answer_LLM
 from tools import RAG, search_web, mcp_client
-from langgraph.prebuilt import ToolNode
-
-
 
 
 async def get_tools() -> list:
-    """Fetch tools once and cache them (RAG + web search + MCP tools)."""
-        mcp_tools = await mcp_client.get_tools()
-        _tools_cache = [RAG, search_web, *mcp_tools]
-    return _tools_cache
+    """Fetch tools (RAG + web search + MCP tools)."""
+    mcp_tools = await mcp_client.get_tools()
+    tools = [RAG, search_web, *mcp_tools]
+    return tools
 
 
 async def llm_tool_node(state: State):
