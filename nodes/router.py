@@ -15,7 +15,7 @@ When in doubt → tools."""
 async def router_node(state: State):
     try:
         r = await router_LLM.with_structured_output(RouterDecision).ainvoke([
-            SystemMessage(content=_PROMPT + f"\nfile_uploaded={state.get('file_uploaded', False)}"),
+            SystemMessage(content=_PROMPT),
             HumanMessage(content=state["messages"][-1].content)
         ])
         return {"router_decision": r.decision, "reasoning": r.reasoning}
