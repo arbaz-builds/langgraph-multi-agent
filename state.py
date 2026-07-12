@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class RouterDecision(BaseModel):
-    decision: Literal["rag", "web_search", "python_tool", "direct"] = Field(
+    decision: Literal["tools", "answer"] = Field(
         description="Routing decision"
     )
     reasoning: str = Field(
