@@ -23,4 +23,4 @@ async def build_graph():
     g.add_conditional_edges("tools",    after_tools,     ["llm_tool", "answer"])
     g.add_edge("answer", END)
 
-    return g, tools
+    return g
