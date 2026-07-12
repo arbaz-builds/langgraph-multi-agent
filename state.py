@@ -16,7 +16,6 @@ class RouterDecision(BaseModel):
 
 class State(TypedDict):
     messages:        Annotated[List[BaseMessage], add_messages]
-    file_uploaded:   bool
     router_decision: str
     reasoning:       str
     iteration_count: int
