@@ -25,4 +25,17 @@ async def answer_node(state: State):
     tool_out = _get_tool_output(msgs)
     prompt   = _PROMPT + (f"\n\nTool result:\n{tool_out}" if tool_out else "")
     history  = [m for m in msgs[-10:] if not isinstance(m, ToolMessage)]
-    return {"messages": [await answer_LLM.ainvoke([SystemMessage(content=prompt)] + history)]}
+    messages = [SystemMessage(content=prompt)] + history
+
+    resp = await answer_LLM.ainvoke(messages)
+
+    # The LLM occasionally returns an empty completion (provider-side
+    # flakiness). Retry once before giving up, so users don't silently
+    # get a blank reply.
+    if not (resp.content or "").strip():
+        resp = await answer_LLM.ainvoke(messages)
+
+    if not (resp.content or "").strip():
+        resp.content = "Sorry, I couldn't generate a response — please try asking again."
+
+    return {"messages": [resp]}
