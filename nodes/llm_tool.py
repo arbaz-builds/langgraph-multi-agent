@@ -18,7 +18,15 @@ async def llm_tool_node(state: State):
 
     tools = await get_tools()
     resp = await answer_LLM.bind_tools(tools).ainvoke(
-        [SystemMessage(content="You are an AI assistant. Always call a tool. Never reply with text.")] +
+        [SystemMessage(content=(
+            "You are an AI assistant with access to these tools:\n"
+            "- RAG: search uploaded documents / knowledge base\n"
+            "- search_web: look up current or real-time information\n"
+            "- python_tool: execute Python code\n\n"
+            "The user's query has already been classified as needing a tool. "
+            "Pick the single most relevant tool for the request and call it with "
+            "the correct arguments. Do not reply with plain text — always make a tool call."
+        ))] +
         state["messages"][-6:]
     )
     return {"messages": [resp], "iteration_count": state.get("iteration_count", 0) + 1}
