@@ -55,7 +55,7 @@ async def health():
 @app.post("/chat", response_model=QueryResponse, summary="Chat with the multi-agent assistant")
 async def chat(payload: QueryRequest):
     result = await _compiled_graph.ainvoke(
-        {"messages": [HumanMessage(content=payload.query)], "file_uploaded": False, "iteration_count": 0},
+        {"messages": [HumanMessage(content=payload.query)], "iteration_count": 0},
         config={"configurable": {"thread_id": payload.thread_id}},
     )
     return QueryResponse(response=result["messages"][-1].content)
@@ -70,7 +70,7 @@ async def build_and_run(query: str, thread_id: str = "1") -> str:
     async with AsyncPostgresSaver.from_conn_string(config.DATABASE_URL) as cp:
         await cp.setup()
         return (await g.compile(checkpointer=cp).ainvoke(
-            {"messages": [HumanMessage(content=query)], "file_uploaded": False, "iteration_count": 0},
+            {"messages": [HumanMessage(content=query)], "iteration_count": 0},
             config={"configurable": {"thread_id": thread_id}}
         ))["messages"][-1].content
 
