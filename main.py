@@ -19,7 +19,7 @@ _compiled_graph = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global _checkpointer_cm, _compiled_graph
-    g, _ = await build_graph()
+    g = await build_graph()
     _checkpointer_cm = AsyncPostgresSaver.from_conn_string(config.DATABASE_URL)
     cp = await _checkpointer_cm.__aenter__()
     await cp.setup()
@@ -66,7 +66,7 @@ async def build_and_run(query: str, thread_id: str = "1") -> str:
     (Renamed from `run` to `build_and_run` so it matches what
     tests/test_agent.py actually imports.)
     """
-    g, _ = await build_graph()
+    g = await build_graph()
     async with AsyncPostgresSaver.from_conn_string(config.DATABASE_URL) as cp:
         await cp.setup()
         return (await g.compile(checkpointer=cp).ainvoke(
