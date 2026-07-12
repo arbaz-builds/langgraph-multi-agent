@@ -18,7 +18,7 @@ async def build_graph():
     g.add_node("answer",   answer_node)
 
     g.add_edge(START,    "router")
-    g.add_conditional_edges("router",   route_condition, ["llm_tool", "answer"])
+    g.add_conditional_edges("router",   route_condition, {"tools": "llm_tool", "answer": "answer"})
     g.add_conditional_edges("llm_tool", tool_or_answer,  ["tools",    "answer"])
     g.add_conditional_edges("tools",    after_tools,     ["llm_tool", "answer"])
     g.add_edge("answer", END)
