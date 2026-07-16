@@ -5,6 +5,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-async-teal)](https://fastapi.tiangolo.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
+Most chatbots either answer from memory or bolt on a single tool. This one decides, per message, whether it needs to retrieve documents, search the web, run code, or just answer — then chains multiple tools together if the first result isn't enough, all while remembering the conversation across requests.
+
 A LangGraph-based chatbot that routes each query to the right capability — RAG retrieval, live web search, sandboxed Python execution (via MCP), or a direct LLM answer — with PostgreSQL-backed multi-turn memory, served over FastAPI.
 
 **Live API:** `https://langgraph-multi-agent-ee8b.onrender.com` (`/health`, `/chat`)
