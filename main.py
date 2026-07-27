@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from graph import build_graph
+from llms import vision_LLM
 import config
 
 config.validate()
@@ -22,6 +23,7 @@ app = FastAPI(
 class QueryRequest(BaseModel):
     query: str
     thread_id: str = "1"
+    image_base64: str | None = None  # e.g. "data:image/jpeg;base64,/9j/4AAQ..."
 
 
 class QueryResponse(BaseModel):
@@ -52,9 +54,24 @@ async def _invoke(query: str, thread_id: str = "1") -> str:
     return result["messages"][-1].content
 
 
+async def _invoke_vision(query: str, image_base64: str) -> str:
+    """Image queries skip the router/tool graph entirely and go straight
+    to the vision-capable model — routing/RAG/tools don't apply when the
+    input is an image."""
+    content = [
+        {"type": "text", "text": query},
+        {"type": "image_url", "image_url": {"url": image_base64}},
+    ]
+    result = await vision_LLM.ainvoke([HumanMessage(content=content)])
+    return result.content
+
+
 @app.post("/chat", response_model=QueryResponse, summary="Chat with the multi-agent assistant")
 async def chat(payload: QueryRequest):
-    reply = await _invoke(payload.query, payload.thread_id)
+    if payload.image_base64:
+        reply = await _invoke_vision(payload.query, payload.image_base64)
+    else:
+        reply = await _invoke(payload.query, payload.thread_id)
     return QueryResponse(response=reply)
 
 
