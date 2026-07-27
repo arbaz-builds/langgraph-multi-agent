@@ -1,5 +1,5 @@
 """Answer node — generates final response using tool output + chat history."""
-from langchain_core.messages import SystemMessage, ToolMessage
+from langchain_core.messages import SystemMessage, ToolMessage, HumanMessage
 from state import State
 from llms import answer_LLM
 
@@ -20,11 +20,28 @@ def _get_tool_output(msgs):
     return None
 
 
+def _strip_images(msgs):
+    """answer_LLM is text-only. A HumanMessage with multimodal content
+    (image_url blocks, from an earlier vision turn) confuses it — the raw
+    image bytes look like noise it can't parse. Replace those messages
+    with just their text portion; the actual image description already
+    exists as the AIMessage reply that follows it, so no information is
+    lost, only the unreadable raw image."""
+    cleaned = []
+    for m in msgs:
+        if isinstance(m, HumanMessage) and isinstance(m.content, list):
+            text_parts = [b.get("text", "") for b in m.content if isinstance(b, dict) and b.get("type") == "text"]
+            cleaned.append(HumanMessage(content=" ".join(text_parts).strip() or "[sent an image]"))
+        else:
+            cleaned.append(m)
+    return cleaned
+
+
 async def answer_node(state: State):
     msgs     = state["messages"]
     tool_out = _get_tool_output(msgs)
     prompt   = _PROMPT + (f"\n\nTool result:\n{tool_out}" if tool_out else "")
-    history  = [m for m in msgs[-10:] if not isinstance(m, ToolMessage)]
+    history  = _strip_images([m for m in msgs[-10:] if not isinstance(m, ToolMessage)])
     messages = [SystemMessage(content=prompt)] + history
 
     resp = await answer_LLM.ainvoke(messages)
