@@ -124,10 +124,19 @@ async def _invoke_vision(query: str, image_base64: str, thread_id: str = "1") ->
 
             # Persist this turn to the same thread so a follow-up text
             # question can reference what was in the image.
+            #
+            # as_node must be given explicitly: if omitted, LangGraph tries
+            # to infer "the last node that updated state", which is
+            # ambiguous on a thread's first-ever write (no prior node to
+            # infer from) and the update can silently fail to persist.
+            # iteration_count is included too, since State requires it and
+            # leaving it unset here caused the next graph .ainvoke() (in
+            # _invoke) to treat this checkpoint as incomplete/stale.
             g = await build_graph()
             await g.compile(checkpointer=cp).aupdate_state(
                 config={"configurable": {"thread_id": thread_id}},
-                values={"messages": [new_message, result]},
+                values={"messages": [new_message, result], "iteration_count": 0},
+                as_node="answer",
             )
         return result.content
     except (APIConnectionError, APITimeoutError) as e:
